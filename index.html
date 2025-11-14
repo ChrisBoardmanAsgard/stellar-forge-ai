@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3e%3cg stroke='%2322d3ee' stroke-width='8' fill='none'%3e%3ccircle cx='50' cy='50' r='5' fill='%2322d3ee'/%3e%3cpath d='M50 20a30 30 0 1 0 0 60'/%3e%3cpath d='M20 50a30 30 0 1 0 60 0'/%3e%3c/g%3e%3c/svg%3e" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="An AI-powered space technology inventor that generates new concepts based on advanced propulsion research papers." />
+    <title>Stellar Forge AI - Inventing the Future of Space Travel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #030712;
+      }
+      #root {
+        position: relative;
+        z-index: 1;
+      }
+      .stars-bg, .twinkling-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+        z-index: 0;
+      }
+      .stars-bg {
+         background: #000 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAI0SURBVHgB7d1LUuNAEIXh20KEi+jC0Isg0IMg+uL+/1YkXEbRtQhCLyK46b7a2d6StJ1O5xP1A53P6fS+j+l0+kYVAAAAAIAxCTg/3/cxne6dft5f/Xo+nU4/RxAAAAAYm4Cj+3/f3R+3b/V6v/7d/+7W8fl8XgMAAABgbAKO7r5+3W43m6+vt1qtVq/X6/X+fL9eb/f7zWaz2Ww2AAAAYAwCzu7+brfbrw9+3d3//fL5fL/f7wAAAACMEODo7u92u/368N3b/d4f/L5eAAAAgDECOHrb/erwe/P5/Hw+v14vAgAAgDECOHr75fN6vb7f79d/b1ebzWb/5wIAAACMEODo7W53D3728/l6vV4vAgAAgDECOHrb3e4evOz3+81mMxgDAAAAYAgC/gMAbEAnAAAA4Nwc+hkAwAbQAQAAgHNy6GcAAANoAwAAgHNy6GcAAANoAwAAgHNy6GcAAANoAwAAgHNy6GcAAANoAwAAgHNy6GcAAANoAwAAgHNy6GcAAANoAwAAgHNy6GcAAANoAwAAgHNy6GcAAANoAwAAgHNy6GcAAANoAwAAgHNy6GcAAANoAwAAgHNy6GcAAANoAwAAgHNy6GcAAANoAwAAgHNy6GcAAANoAwAAgHNy6GcAAANoAwAAgHNy6GcAAANoAwAAgHNy6GcAAANoAwAAgHNy6GcAAANoAwAAgHNy6GcAAANoAwAAgHNy6GcAAANoAwAAgHNy6GcAAANoAwAAgHNy6GcAAAACy9cDE9hXo0AAAAASUVORK5CYII=) repeat top center;
+      }
+      .twinkling-bg {
+         background: transparent url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAJTSURBVHgB7d1LcsIwEAXQW0KEi4gLQl6EIA9C8MX9/1YkXEbREQi9iOAm6a0uH4p7S1PSdDr/YP2Azu/pdP4hnc5/WwVAgAABgDAJOPt83sd0ev/+vL/693w6nf5nKgABAgBgTAKO9v9/d3/ct/Xq9fv3/3dr+Xy+LgABAgBgTAKO9l+/brfbzZev27Vare7v/Xy/Xq/3+/1ms9lsNhUAAQIAYRZwdr/fbrf/vfjX3f//8vl8v9/vqwABAgBhCnC0/3u73f578t3e7/3h369XAQIECMIU4Gh/v+rw+/bz+Xw+X69XAQIECMIU4Gj/8vl6vd7v9+u/99vNZjMFAQIECMIU4Gh7vN39x8/n6/V6vQoQIAAQpgBHe7vd/Tcs+/1+s9mMpgABAgBhCHC03e7237Dg8/l6vV4FAQIECMIU4Gg/3w1+9vP5fL3erwIECAAIA0k/AADIAG0CAECcj/QzAIAw0CYAAMj5SM8AAISBdgAAQM6HegYAIARtAwBAzod6BgAgBG0DAEDOh3oGACAEbQMAQM6HegYAIARtAwBAzod6BgAgBG0DAEDOh3oGACAEbQMAQM6HegYAIARtAwBAzod6BgAgBG0DAEDOh3oGACAEbQMAQM6HegYAIARtAwBAzod6BgAgBG0DAEDOh3oGACAEbQMAQM6HegYAIARtAwBAzod6BgAgBG0DAEDOh3oGACAEbQMAQM6HegYAIARtAwBAzod6BgAgBG0DAEDOh3oGACAEbQMAQM6HegYAIARtAwBAzod6BgAgBAU/AIr2E8n2vPJuAAAAAElFTkSuQmCC) repeat top center;
+         animation: move-twink-back 200s linear infinite;
+      }
+
+      @keyframes move-twink-back {
+          from {background-position:0 0;}
+          to {background-position:-10000px 5000px;}
+      }
+      h1, h2, h3, .font-orbitron {
+        font-family: 'Orbitron', sans-serif;
+      }
+      @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      .animate-fade-in {
+        animation: fade-in 0.3s ease-out forwards;
+      }
+      @media print {
+        body {
+          background-color: #ffffff !important;
+          color: #000000 !important;
+        }
+        main {
+            padding: 0 !important;
+        }
+        .print-container {
+          border: none !important;
+          box-shadow: none !important;
+          background: transparent !important;
+          padding: 0 !important;
+        }
+        .recharts-responsive-container {
+            width: 100% !important;
+            height: auto !important;
+            aspect-ratio: 2 / 1;
+        }
+        .prose-invert {
+            --tw-prose-body: #111827;
+            --tw-prose-headings: #0e7490;
+            --tw-prose-links: #0891b2;
+            --tw-prose-bold: #111827;
+            --tw-prose-counters: #6b7280;
+            --tw-prose-bullets: #0e7490;
+        }
+        .text-gray-200, .text-gray-300, .text-gray-400 {
+            color: #111827 !important;
+        }
+        .text-cyan-300, .text-cyan-400 {
+            color: #0e7490 !important;
+        }
+        .border-cyan-500\/20, .border-cyan-500\/30 {
+            border-color: #0e74904d !important;
+        }
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.29.1",
+    "recharts": "https://aistudiocdn.com/recharts@^2.12.7",
+    "html2pdf.js": "https://aistudiocdn.com/html2pdf.js@^0.10.2",
+    "three": "https://aistudiocdn.com/three@^0.166.1/build/three.module.js",
+    "three/addons/": "https://aistudiocdn.com/three@^0.166.1/examples/jsm/",
+    "three/": "https://aistudiocdn.com/three@^0.166.1/"
+  }
+}
+</script>
+</head>
+  <body class="bg-gray-900 text-gray-200">
+    <div class="stars-bg"></div>
+    <div class="twinkling-bg"></div>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
