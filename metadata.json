@@ -1,5 +1,5 @@
 {
   "name": "Stellar Forge AI",
-  "description": "An AI-powered space technology inventor that uses research papers on advanced propulsion (RHPWP and RTPD) as a baseline to generate new concepts and ideas.",
+  "description": "An AI-powered space technology inventor that uses research papers on advanced propulsion (RHPWP, RTPD, and TECAR) as a baseline to generate new concepts and ideas.",
   "requestFramePermissions": []
 }

@@ -1,7 +1,9 @@
 import React, { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import type { ModelParams } from '../App';
+import { DownloadIcon } from './Icons';
 
 interface ModelViewerProps {
   modelParams: ModelParams;
@@ -10,6 +12,37 @@ interface ModelViewerProps {
 
 const ModelViewer: React.FC<ModelViewerProps> = ({ modelParams, imageUrl }) => {
   const mountRef = useRef<HTMLDivElement>(null);
+  const groupRef = useRef<THREE.Group | null>(null);
+
+  const handleExportGLB = () => {
+    if (!groupRef.current) {
+        console.error("3D model group not available for export.");
+        return;
+    }
+    const exporter = new GLTFExporter();
+    exporter.parse(
+        groupRef.current,
+        (result) => {
+            const blob = new Blob([result as ArrayBuffer], { type: 'application/octet-stream' });
+            
+            const link = document.createElement('a');
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            
+            link.href = URL.createObjectURL(blob);
+            link.download = 'stellar_forge_model.glb';
+            link.click();
+            
+            URL.revokeObjectURL(link.href);
+            document.body.removeChild(link);
+        },
+        (error) => {
+            console.error('An error happened during GLB export:', error);
+            alert('Sorry, there was an error exporting the model. Please check the console for details.');
+        },
+        { binary: true }
+    );
+  };
   
   useEffect(() => {
     if (!mountRef.current || !modelParams) return;
@@ -48,6 +81,8 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ modelParams, imageUrl }) => {
 
     // Create Model from Params
     const group = new THREE.Group();
+    groupRef.current = group; // Store group in ref for exporter
+    
     const textureLoader = new THREE.TextureLoader();
     
     const primaryMaterial = new THREE.MeshStandardMaterial({ 
@@ -92,7 +127,6 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ modelParams, imageUrl }) => {
                 break;
         }
 
-        // Use primary material (with texture if available) for the first component, and secondary for others.
         const material = index === 0 ? primaryMaterial : secondaryMaterial;
         const mesh = new THREE.Mesh(geometry, material);
         mesh.scale.set(comp.scale[0], comp.scale[1], comp.scale[2]);
@@ -145,10 +179,23 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ modelParams, imageUrl }) => {
       
       renderer.dispose();
       controls.dispose();
+      groupRef.current = null; // Clear ref on cleanup
     };
   }, [modelParams, imageUrl]);
   
-  return <div ref={mountRef} className="w-full h-full rounded-lg" />;
+  return (
+    <div className="relative w-full h-full">
+        <div ref={mountRef} className="w-full h-full rounded-lg" />
+        <button
+            onClick={handleExportGLB}
+            className="absolute top-3 right-3 z-10 p-2 bg-gray-800/70 hover:bg-cyan-700/80 rounded-full text-white transition-colors duration-200 backdrop-blur-sm"
+            aria-label="Export 3D Model as GLB"
+            title="Export as GLB"
+        >
+            <DownloadIcon className="w-5 h-5" />
+        </button>
+    </div>
+  );
 };
 
 export default ModelViewer;

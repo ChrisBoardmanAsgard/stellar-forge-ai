@@ -80,7 +80,7 @@ const App: React.FC = () => {
           <div className="flex flex-col gap-6 p-6 bg-gray-800/50 rounded-lg border border-cyan-500/20 shadow-xl shadow-cyan-500/10 print:hidden">
             <h2 className="text-2xl font-bold font-orbitron text-cyan-300">Invention Prompt</h2>
             <p className="text-gray-400">
-              Provide a concept, question, or goal related to interstellar travel. The AI will use research papers on <a href="https://zenodo.org/records/17551801" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">RHPWP</a> and <a href="https://zenodo.org/records/17609190" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">RTPD</a> to invent a new technology based on your input.
+              Provide a concept, question, or goal related to interstellar travel. The AI will use research papers on <a href="https://zenodo.org/records/17551801" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">RHPWP</a>, <a href="https://zenodo.org/records/17609190" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">RTPD</a>, and <a href="https://zenodo.org/records/17614345" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">TECAR</a> to invent a new technology based on your input.
             </p>
             <InputForm 
               onSubmit={handleGenerate} 

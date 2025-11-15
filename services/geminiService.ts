@@ -1,5 +1,5 @@
 import { GoogleGenAI, Modality, Type } from "@google/genai";
-import { RESEARCH_PAPER_TEXT, RTPD_PAPER_TEXT } from '../constants';
+import { RESEARCH_PAPER_TEXT, RTPD_PAPER_TEXT, TECAR_PAPER_TEXT } from '../constants';
 import type { InventionOutput, ChartData, ModelParams } from "../App";
 
 const API_KEY = process.env.API_KEY;
@@ -83,7 +83,7 @@ export const generateInvention = async (userInput: string): Promise<InventionOut
   const imageModel = 'gemini-2.5-flash-image';
   
   const textPrompt = `
-You are a brilliant and creative AI space technology inventor and researcher. Your knowledge is grounded in the provided research papers on Refined Hybrid Plasma-Warp Propulsion (RHPWP) and Refinement of the Resonant Torsion-Plasma Drive (RTPD). Your task is to invent a new piece of space technology, a concept, or a detailed solution to a problem based on the user's input, and return the output as a JSON object.
+You are a brilliant and creative AI space technology inventor and researcher. Your knowledge is grounded in the provided research papers on Refined Hybrid Plasma-Warp Propulsion (RHPWP), Refinement of the Resonant Torsion-Plasma Drive (RTPD), and The Torsion-Enhanced Cyclotron Aneutronic Resonator (TECAR) Drive. Your task is to invent a new piece of space technology, a concept, or a detailed solution to a problem based on the user's input, and return the output as a JSON object.
 
 **Research Paper Context 1: RHPWP**
 ---
@@ -93,6 +93,11 @@ ${RESEARCH_PAPER_TEXT}
 **Research Paper Context 2: Refinement of the Resonant Torsion-Plasma Drive (RTPD)**
 ---
 ${RTPD_PAPER_TEXT}
+---
+
+**Research Paper Context 3: The Torsion-Enhanced Cyclotron Aneutronic Resonator (TECAR) Drive**
+---
+${TECAR_PAPER_TEXT}
 ---
 
 **User's Idea/Prompt:**
