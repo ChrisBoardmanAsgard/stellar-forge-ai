@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
@@ -13,6 +13,11 @@ interface ModelViewerProps {
 const ModelViewer: React.FC<ModelViewerProps> = ({ modelParams, imageUrl }) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const groupRef = useRef<THREE.Group | null>(null);
+  const ambientLightRef = useRef<THREE.AmbientLight | null>(null);
+  const directionalLightRef = useRef<THREE.DirectionalLight | null>(null);
+
+  const [ambientIntensity, setAmbientIntensity] = useState(0.8);
+  const [directionalIntensity, setDirectionalIntensity] = useState(1.5);
 
   const handleExportGLB = () => {
     if (!groupRef.current) {
@@ -73,11 +78,14 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ modelParams, imageUrl }) => {
     controls.autoRotateSpeed = 0.5;
 
     // Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    const ambientLight = new THREE.AmbientLight(0xffffff, ambientIntensity);
     scene.add(ambientLight);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+    ambientLightRef.current = ambientLight;
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, directionalIntensity);
     directionalLight.position.set(8, 10, 5);
     scene.add(directionalLight);
+    directionalLightRef.current = directionalLight;
 
     // Create Model from Params
     const group = new THREE.Group();
@@ -180,8 +188,22 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ modelParams, imageUrl }) => {
       renderer.dispose();
       controls.dispose();
       groupRef.current = null; // Clear ref on cleanup
+      ambientLightRef.current = null;
+      directionalLightRef.current = null;
     };
   }, [modelParams, imageUrl]);
+
+  useEffect(() => {
+    if (ambientLightRef.current) {
+      ambientLightRef.current.intensity = ambientIntensity;
+    }
+  }, [ambientIntensity]);
+
+  useEffect(() => {
+    if (directionalLightRef.current) {
+      directionalLightRef.current.intensity = directionalIntensity;
+    }
+  }, [directionalIntensity]);
   
   return (
     <div className="relative w-full h-full">
@@ -194,6 +216,36 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ modelParams, imageUrl }) => {
         >
             <DownloadIcon className="w-5 h-5" />
         </button>
+        <div className="absolute bottom-3 left-3 right-3 z-10 p-3 bg-gray-800/70 rounded-lg backdrop-blur-sm flex flex-col sm:flex-row gap-4 items-center">
+            <div className="w-full sm:w-1/2">
+                <label htmlFor="ambient-intensity" className="block text-xs font-medium text-gray-300 mb-1">Ambient Light ({ambientIntensity.toFixed(1)})</label>
+                <input
+                    id="ambient-intensity"
+                    type="range"
+                    min="0"
+                    max="3"
+                    step="0.1"
+                    value={ambientIntensity}
+                    onChange={(e) => setAmbientIntensity(parseFloat(e.target.value))}
+                    className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer range-slider"
+                    aria-label="Ambient light intensity"
+                />
+            </div>
+            <div className="w-full sm:w-1/2">
+                <label htmlFor="directional-intensity" className="block text-xs font-medium text-gray-300 mb-1">Directional Light ({directionalIntensity.toFixed(1)})</label>
+                <input
+                    id="directional-intensity"
+                    type="range"
+                    min="0"
+                    max="5"
+                    step="0.1"
+                    value={directionalIntensity}
+                    onChange={(e) => setDirectionalIntensity(parseFloat(e.target.value))}
+                    className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer range-slider"
+                    aria-label="Directional light intensity"
+                />
+            </div>
+        </div>
     </div>
   );
 };

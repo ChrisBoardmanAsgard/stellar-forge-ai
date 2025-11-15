@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from 'react';
 import { Header } from './components/Header';
 import { InputForm } from './components/InputForm';
@@ -43,6 +44,7 @@ const App: React.FC = () => {
   const [inventionOutput, setInventionOutput] = useState<InventionOutput | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [refinementInput, setRefinementInput] = useState<string>('');
 
   const handleGenerate = useCallback(async (prompt: string) => {
     if (isLoading || !prompt.trim()) return;
@@ -50,6 +52,7 @@ const App: React.FC = () => {
     setIsLoading(true);
     setError(null);
     setInventionOutput(null);
+    setRefinementInput('');
 
     try {
       const result = await generateInvention(prompt);
@@ -66,6 +69,32 @@ const App: React.FC = () => {
     }
   }, [isLoading]);
 
+  const handleRefine = useCallback(async (prompt: string) => {
+    if (isLoading || !prompt.trim() || !inventionOutput) return;
+
+    setIsLoading(true);
+    setError(null);
+    
+    const previousInvention = inventionOutput;
+    setInventionOutput(null);
+
+    try {
+        const result = await generateInvention(prompt, previousInvention);
+        setInventionOutput(result);
+        setRefinementInput('');
+    } catch (e) {
+        console.error(e);
+        if (e instanceof Error) {
+            setError(e.message);
+        } else {
+            setError('An unknown error occurred. Please try again later.');
+        }
+        setInventionOutput(previousInvention); // Restore previous output on error
+    } finally {
+        setIsLoading(false);
+    }
+  }, [isLoading, inventionOutput]);
+
   const handleExampleClick = (prompt: string) => {
     setUserInput(prompt);
     handleGenerate(prompt);
@@ -80,7 +109,7 @@ const App: React.FC = () => {
           <div className="flex flex-col gap-6 p-6 bg-gray-800/50 rounded-lg border border-cyan-500/20 shadow-xl shadow-cyan-500/10 print:hidden">
             <h2 className="text-2xl font-bold font-orbitron text-cyan-300">Invention Prompt</h2>
             <p className="text-gray-400">
-              Provide a concept, question, or goal related to interstellar travel. The AI will use research papers on <a href="https://zenodo.org/records/17551801" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">RHPWP</a>, <a href="https://zenodo.org/records/17609190" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">RTPD</a>, and <a href="https://zenodo.org/records/17614345" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">TECAR</a> to invent a new technology based on your input.
+              Provide a concept, question, or goal related to interstellar travel. The AI will use research papers on <a href="https://zenodo.org/records/17551801" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">RHPWP</a>, <a href="https://zenodo.org/records/17609190" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">RTPD</a>, <a href="https://zenodo.org/records/17614345" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">TECAR</a>, <a href="https://zenodo.org/records/17614942" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">RATP</a>, <a href="https://zenodo.org/records/17615191" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">CRATP-Drive</a>, and the <a href="https://zenodo.org/records/17617706" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">SQHF Drive</a> to invent a new technology based on your input.
             </p>
             <InputForm 
               onSubmit={handleGenerate} 
@@ -92,8 +121,8 @@ const App: React.FC = () => {
               <h3 className="text-lg font-semibold font-orbitron text-gray-300 mb-3">Or try an example:</h3>
               <div className="flex flex-wrap gap-2">
                 <button onClick={() => handleExampleClick('Design a small probe for exploring the Oort cloud using RHPWP principles.')} disabled={isLoading} className="text-sm bg-gray-700/70 hover:bg-cyan-800/80 disabled:opacity-50 text-cyan-300 px-3 py-1 rounded-full transition-colors">Probe for Oort Cloud</button>
-                <button onClick={() => handleExampleClick('How can we improve the deceleration phase of the RHPWP drive?')} disabled={isLoading} className="text-sm bg-gray-700/70 hover:bg-cyan-800/80 disabled:opacity-50 text-cyan-300 px-3 py-1 rounded-full transition-colors">Improve Deceleration</button>
-                <button onClick={() => handleExampleClick('Invent a defense system for an RHPWP-powered ship against interstellar dust.')} disabled={isLoading} className="text-sm bg-gray-700/70 hover:bg-cyan-800/80 disabled:opacity-50 text-cyan-300 px-3 py-1 rounded-full transition-colors">Ship Defense System</button>
+                <button onClick={() => handleExampleClick('How can the SQHF Drive\'s quantum feedback system be adapted for radiation shielding?')} disabled={isLoading} className="text-sm bg-gray-700/70 hover:bg-cyan-800/80 disabled:opacity-50 text-cyan-300 px-3 py-1 rounded-full transition-colors">SQHF Radiation Shield</button>
+                <button onClick={() => handleExampleClick('Invent a system to manage crew psychology on a 10-year mission using CRATP-Drive principles.')} disabled={isLoading} className="text-sm bg-gray-700/70 hover:bg-cyan-800/80 disabled:opacity-50 text-cyan-300 px-3 py-1 rounded-full transition-colors">Crew Psychology System</button>
               </div>
             </div>
           </div>
@@ -102,6 +131,9 @@ const App: React.FC = () => {
               isLoading={isLoading}
               error={error}
               output={inventionOutput}
+              onRefine={handleRefine}
+              refinementInput={refinementInput}
+              setRefinementInput={setRefinementInput}
             />
           </div>
         </div>

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import html2pdf from 'html2pdf.js';
@@ -6,12 +7,16 @@ import { InventionCharts } from './InventionCharts';
 import { SimulationViewer } from './SimulationViewer';
 import { StaticSimulationViewer } from './StaticSimulationViewer';
 import ModelViewer from './ModelViewer';
+import { RefinementForm } from './RefinementForm';
 import type { InventionOutput } from '../App';
 
 interface OutputDisplayProps {
   isLoading: boolean;
   error: string | null;
   output: InventionOutput | null;
+  onRefine: (prompt: string) => void;
+  refinementInput: string;
+  setRefinementInput: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const FormattedContent: React.FC<{ content: string }> = ({ content }) => {
@@ -59,7 +64,7 @@ const FormattedContent: React.FC<{ content: string }> = ({ content }) => {
   return <div className="space-y-4">{elements}</div>;
 };
 
-export const OutputDisplay: React.FC<OutputDisplayProps> = ({ isLoading, error, output }) => {
+export const OutputDisplay: React.FC<OutputDisplayProps> = ({ isLoading, error, output, onRefine, refinementInput, setRefinementInput }) => {
   const [isSavingPdf, setIsSavingPdf] = useState(false);
   const [showSimulation, setShowSimulation] = useState(false);
   const [showModelViewer, setShowModelViewer] = useState(false);
@@ -264,6 +269,16 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({ isLoading, error, 
                 </>
               )}
             </button>
+          </div>
+          <div className="mt-8 pt-8 border-t-2 border-cyan-500/20 print:hidden">
+            <h3 className="text-2xl font-bold font-orbitron text-cyan-300 mb-4">Refine Invention</h3>
+            <p className="text-gray-400 mb-4">Suggest a modification or ask for a new feature. For example: "Make it more energy efficient" or "Add a system for landing on planets."</p>
+            <RefinementForm 
+                onSubmit={onRefine} 
+                isLoading={isLoading} 
+                refinementInput={refinementInput}
+                setRefinementInput={setRefinementInput}
+            />
           </div>
         </>
       );
