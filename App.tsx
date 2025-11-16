@@ -37,6 +37,7 @@ export interface InventionOutput {
   imageUrl: string | null;
   chartData: ChartData | null;
   modelParams: ModelParams | null;
+  stabilityPercentage: number | null;
 }
 
 const App: React.FC = () => {

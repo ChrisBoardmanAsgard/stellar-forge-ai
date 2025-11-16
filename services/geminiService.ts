@@ -19,6 +19,10 @@ const responseSchema = {
             type: Type.STRING,
             description: "The full markdown text for the invention, following the specified structure."
         },
+        stabilityPercentage: {
+            type: Type.NUMBER,
+            description: "A numerical value between 85.0 and 100.0, representing the operational stability of the drive. Higher is better."
+        },
         chartData: {
             type: Type.OBJECT,
             properties: {
@@ -75,7 +79,7 @@ const responseSchema = {
             required: ['components', 'primaryColor', 'secondaryColor']
         }
     },
-    required: ['inventionText', 'chartData', 'imagePrompt', 'modelParams']
+    required: ['inventionText', 'stabilityPercentage', 'chartData', 'imagePrompt', 'modelParams']
 };
 
 const systemPrompt = `
@@ -122,11 +126,12 @@ ${SQHF_DRIVE_PAPER_TEXT}
     *   \`### Mathematical Foundation\`
     *   \`### Feasibility Analysis & Timeline\` (Must include a projected timeline, e.g., 2070-2100).
     *   \`### Physical Constraints & Considerations\` (Address challenges like radiation, causality, energy scale, and required theoretical breakthroughs).
-2.  **Provide structured data for visualization**. This data will be the value for the \`chartData\` key.
+2.  **Provide a stability percentage**. This will be the value for the \`stabilityPercentage\` key. It must be a number between 85.0 and 100.0, representing the drive's operational stability (e.g., warp field coherence, plasma resonance consistency). This value should also be mentioned in the 'Feasibility Analysis' section of the invention text.
+3.  **Provide structured data for visualization**. This data will be the value for the \`chartData\` key.
     *   \`propulsionPhases\`: An array of objects, each representing a point in time during a mission. Objects should have \`phase\` (string), \`time_days\` (number), and \`speed_c\` (number). Include at least 4 distinct phases (e.g., Launch, Boost, Cruise, Deceleration).
     *   \`energyRequirements\`: An array of objects showing the relationship between speed and energy. Objects should have \`speed_c\` (number) and \`energy_j\` (number). Use scientific notation for energy (e.g., 1e24). Provide at least 3 data points.
-3.  **Create a highly descriptive image prompt** for generating a conceptual image of the invention. This will be the value for the \`imagePrompt\` key. It must be a visual translation of the invention described in \`inventionText\`, focusing on concrete visual details like shape, materials, energy effects, and environment. Suggest a specific style such as 'blueprint-style technical diagram', 'photorealistic concept art of the ship in space', or 'cross-section schematic'.
-4.  **Generate procedural 3D model parameters**. This will be the value for the \`modelParams\` key.
+4.  **Create a highly descriptive image prompt** for generating a conceptual image of the invention. This will be the value for the \`imagePrompt\` key. It must be a visual translation of the invention described in \`inventionText\`, focusing on concrete visual details like shape, materials, energy effects, and environment. Suggest a specific style such as 'blueprint-style technical diagram', 'photorealistic concept art of the ship in space', or 'cross-section schematic'.
+5.  **Generate procedural 3D model parameters**. This will be the value for the \`modelParams\` key.
     *   \`components\`: An array of 3 to 7 component objects to build the ship. The first component should be the main hull.
     *   Each component must have:
         *   \`shape\`: A string, one of: 'box', 'sphere', 'cylinder', 'cone'.
@@ -177,9 +182,10 @@ Carefully read the previous invention and the user's refinement request. Your go
     const textContent = responseJson.inventionText;
     const chartData: ChartData | null = responseJson.chartData;
     const modelParams: ModelParams | null = responseJson.modelParams;
+    const stabilityPercentage: number | null = responseJson.stabilityPercentage;
     let imagePrompt = responseJson.imagePrompt;
     
-    if (!textContent || !chartData || !imagePrompt || !modelParams) {
+    if (!textContent || stabilityPercentage === null || !chartData || !imagePrompt || !modelParams) {
         throw new Error("Invalid JSON structure received from AI.");
     }
     
@@ -207,7 +213,7 @@ Carefully read the previous invention and the user's refinement request. Your go
         }
     }
 
-    return { text: textContent, imageUrl, chartData, modelParams };
+    return { text: textContent, imageUrl, chartData, modelParams, stabilityPercentage };
   } catch (error) {
     console.error("Error generating content from Gemini:", error);
     if (error instanceof Error && (error.message.includes('429') || error.message.includes('RESOURCE_EXHAUSTED'))) {

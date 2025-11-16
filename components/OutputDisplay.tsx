@@ -64,6 +64,56 @@ const FormattedContent: React.FC<{ content: string }> = ({ content }) => {
   return <div className="space-y-4">{elements}</div>;
 };
 
+const StabilityGauge: React.FC<{ percentage: number }> = ({ percentage }) => {
+  const radius = 50;
+  const circumference = 2 * Math.PI * radius;
+  // Clamp percentage to avoid visual artifacts
+  const clampedPercentage = Math.max(0, Math.min(percentage, 100));
+  const offset = circumference - (clampedPercentage / 100) * circumference;
+
+  let strokeColor = 'text-cyan-400'; // Default
+  if (percentage < 90) strokeColor = 'text-yellow-400';
+  if (percentage >= 98) strokeColor = 'text-green-400';
+
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div className="relative w-32 h-32">
+        <svg className="w-full h-full" viewBox="0 0 120 120">
+          <circle
+            className="text-gray-700/50"
+            strokeWidth="10"
+            stroke="currentColor"
+            fill="transparent"
+            r={radius}
+            cx="60"
+            cy="60"
+          />
+          <circle
+            className={strokeColor}
+            strokeWidth="10"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
+            stroke="currentColor"
+            fill="transparent"
+            r={radius}
+            cx="60"
+            cy="60"
+            transform="rotate(-90 60 60)"
+            style={{ transition: 'stroke-dashoffset 0.5s ease-out' }}
+          />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-3xl font-bold font-orbitron text-white">
+            {percentage.toFixed(1)}%
+          </span>
+        </div>
+      </div>
+      <h4 className="font-orbitron text-lg text-gray-300 mt-2">Drive Stability</h4>
+    </div>
+  );
+};
+
 export const OutputDisplay: React.FC<OutputDisplayProps> = ({ isLoading, error, output, onRefine, refinementInput, setRefinementInput }) => {
   const [isSavingPdf, setIsSavingPdf] = useState(false);
   const [showSimulation, setShowSimulation] = useState(false);
@@ -90,6 +140,12 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({ isLoading, error, 
     const PrintableContent = () => (
       <div className="prose prose-invert max-w-none">
         <FormattedContent content={output.text} />
+         {output.stabilityPercentage != null && (
+            <div className="my-8 text-center" style={{ pageBreakInside: 'avoid' }}>
+                <h3 className="text-2xl font-bold font-orbitron text-cyan-300 border-b-2 border-cyan-500/30 pb-2 mb-4">Drive Stability</h3>
+                <p className="text-6xl font-orbitron text-cyan-400" style={{ lineHeight: '1' }}>{output.stabilityPercentage.toFixed(1)}%</p>
+            </div>
+        )}
         {output.chartData?.propulsionPhases && (
           <StaticSimulationViewer 
             propulsionPhases={output.chartData.propulsionPhases}
@@ -173,18 +229,36 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({ isLoading, error, 
           <div id="output-content-for-display">
             <FormattedContent content={output.text} />
 
-            {output.modelParams && (
-              <div className="my-8 text-center print:hidden">
-                <hr className="border-cyan-500/20 mb-8" />
-                <button
-                  onClick={() => setShowModelViewer(true)}
-                  className="inline-flex items-center justify-center gap-3 bg-cyan-700 hover:bg-cyan-600 text-white font-bold py-3 px-6 rounded-md transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg shadow-cyan-500/20 font-orbitron text-lg"
-                >
-                  <CubeIcon className="w-6 h-6" />
-                  View 3D Model
-                </button>
+            {(output.stabilityPercentage != null || output.modelParams || output.chartData?.propulsionPhases) && (
+              <div className="my-8 print:hidden">
+                  <hr className="border-cyan-500/20 mb-8" />
+                  <h3 className="text-center text-2xl font-bold font-orbitron text-cyan-300 mb-8">Visualizations & Data</h3>
+                  <div className="flex flex-wrap justify-center items-center gap-x-16 gap-y-10">
+                      {output.stabilityPercentage != null && (
+                          <StabilityGauge percentage={output.stabilityPercentage} />
+                      )}
+                      {output.modelParams && (
+                          <button
+                            onClick={() => setShowModelViewer(true)}
+                            className="inline-flex items-center justify-center gap-3 bg-cyan-700 hover:bg-cyan-600 text-white font-bold py-3 px-6 rounded-md transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg shadow-cyan-500/20 font-orbitron text-lg"
+                          >
+                            <CubeIcon className="w-6 h-6" />
+                            View 3D Model
+                          </button>
+                      )}
+                      {output.chartData?.propulsionPhases && (
+                           <button
+                              onClick={() => setShowSimulation(true)}
+                              className="inline-flex items-center justify-center gap-3 bg-cyan-700 hover:bg-cyan-600 text-white font-bold py-3 px-6 rounded-md transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg shadow-cyan-500/20 font-orbitron text-lg"
+                            >
+                              <PlayIcon className="w-6 h-6" />
+                              View Mission Simulation
+                            </button>
+                      )}
+                  </div>
               </div>
             )}
+
 
             {showModelViewer && output?.modelParams && (
               <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in print:hidden" onClick={() => setShowModelViewer(false)}>
@@ -205,19 +279,6 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({ isLoading, error, 
               </div>
             )}
             
-            {output.chartData?.propulsionPhases && (
-              <div id="simulation-button-wrapper" className="my-8 text-center print:hidden">
-                <hr className="border-cyan-500/20 mb-8" />
-                <button
-                  onClick={() => setShowSimulation(true)}
-                  className="inline-flex items-center justify-center gap-3 bg-cyan-700 hover:bg-cyan-600 text-white font-bold py-3 px-6 rounded-md transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg shadow-cyan-500/20 font-orbitron text-lg"
-                >
-                  <PlayIcon className="w-6 h-6" />
-                  View Mission Simulation
-                </button>
-              </div>
-            )}
-
             {showSimulation && output?.chartData?.propulsionPhases && (
               <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in print:hidden" onClick={() => setShowSimulation(false)}>
                   <div className="relative bg-gray-900 border border-cyan-500/30 rounded-lg shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
